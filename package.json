@@ -1,0 +1,13 @@
+{
+  "name": "dartool-hr-forms",
+  "version": "1.0.0",
+  "description": "برنامج نماذج الموارد البشرية - دار تول للاستشارات",
+  "main": "main.js",
+  "scripts": {
+    "start": "node server.js",
+    "electron": "electron .",
+    "keygen": "node admin-keygen/cli-keygen.js"
+  },
+  "author": "Dar Tool Consulting - دار تول للاستشارات",
+  "license": "PROPRIETARY"
+}

@@ -1,0 +1,328 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>دار تول للاستشارات | لوحة توليد تراخيص العملاء (Admin Keygen)</title>
+  <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700;800&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --navy: #162538;
+      --navy-light: #1f344d;
+      --gold: #c5a059;
+      --gold-light: #e5c888;
+      --bg: #f3f5f8;
+      --card: #ffffff;
+      --text: #1e293b;
+      --muted: #64748b;
+      --border: #e2e8f0;
+      --success: #0d9488;
+    }
+    * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Cairo', 'Segoe UI', Tahoma, sans-serif; }
+    body {
+      background: linear-gradient(135deg, #101c2b 0%, #1c314a 100%);
+      color: var(--text);
+      min-height: 100vh;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 24px;
+    }
+    .keygen-card {
+      background: var(--card);
+      width: 100%;
+      max-width: 600px;
+      border-radius: 16px;
+      box-shadow: 0 25px 50px -12px rgba(0,0,0,0.45);
+      overflow: hidden;
+      border: 1px solid rgba(197, 160, 89, 0.35);
+    }
+    .header {
+      background: var(--navy);
+      color: #fff;
+      padding: 24px 28px;
+      border-bottom: 3px solid var(--gold);
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+    .header-brand {
+      display: flex;
+      align-items: center;
+      gap: 14px;
+    }
+    .header-title h1 {
+      font-size: 1.2rem;
+      font-weight: 800;
+      color: #fff;
+    }
+    .header-title p {
+      font-size: 0.82rem;
+      color: var(--gold-light);
+    }
+    .badge-admin {
+      background: rgba(197, 160, 89, 0.2);
+      color: var(--gold-light);
+      border: 1px solid var(--gold);
+      padding: 4px 12px;
+      border-radius: 999px;
+      font-size: 0.75rem;
+      font-weight: 700;
+    }
+    .body {
+      padding: 28px;
+    }
+    .form-group {
+      margin-bottom: 18px;
+    }
+    label {
+      display: block;
+      font-weight: 700;
+      font-size: 0.9rem;
+      margin-bottom: 6px;
+      color: var(--navy);
+    }
+    .hint {
+      font-size: 0.78rem;
+      color: var(--muted);
+      margin-bottom: 8px;
+    }
+    input, select {
+      width: 100%;
+      padding: 12px 14px;
+      border: 1.5px solid var(--border);
+      border-radius: 10px;
+      font-size: 0.95rem;
+      transition: all 0.2s;
+      outline: none;
+    }
+    input.ltr-input {
+      direction: ltr;
+      text-align: center;
+      font-family: 'Consolas', 'Courier New', monospace;
+      font-weight: 700;
+      letter-spacing: 1.5px;
+      font-size: 1.1rem;
+      text-transform: uppercase;
+    }
+    input:focus, select:focus {
+      border-color: var(--gold);
+      box-shadow: 0 0 0 3px rgba(197, 160, 89, 0.15);
+    }
+    .row {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 14px;
+    }
+    .btn-generate {
+      width: 100%;
+      background: linear-gradient(135deg, var(--navy) 0%, var(--navy-light) 100%);
+      color: #fff;
+      border: 1px solid var(--gold);
+      padding: 14px;
+      font-size: 1rem;
+      font-weight: 700;
+      border-radius: 10px;
+      cursor: pointer;
+      transition: all 0.2s;
+      margin-top: 6px;
+    }
+    .btn-generate:hover {
+      background: var(--navy-light);
+      transform: translateY(-1px);
+    }
+    .result-box {
+      margin-top: 24px;
+      background: #f8fafc;
+      border: 1.5px dashed var(--gold);
+      border-radius: 12px;
+      padding: 18px;
+      display: none;
+    }
+    .result-box.active {
+      display: block;
+    }
+    .result-label {
+      font-size: 0.85rem;
+      font-weight: 700;
+      color: var(--navy);
+      margin-bottom: 8px;
+    }
+    .key-display {
+      background: var(--navy);
+      color: var(--gold-light);
+      padding: 14px;
+      border-radius: 8px;
+      font-family: 'Consolas', 'Courier New', monospace;
+      font-size: 1.15rem;
+      font-weight: 700;
+      direction: ltr;
+      text-align: center;
+      letter-spacing: 1.5px;
+      word-break: break-all;
+      margin-bottom: 12px;
+      user-select: all;
+    }
+    .btn-copy {
+      width: 100%;
+      background: var(--gold);
+      color: var(--navy);
+      border: none;
+      padding: 10px;
+      border-radius: 8px;
+      font-weight: 800;
+      cursor: pointer;
+      font-size: 0.9rem;
+    }
+    .btn-copy:hover {
+      background: var(--gold-light);
+    }
+    .warning-note {
+      margin-top: 20px;
+      font-size: 0.78rem;
+      color: #991b1b;
+      background: #fef2f2;
+      border: 1px solid #fecaca;
+      padding: 10px 14px;
+      border-radius: 8px;
+    }
+  </style>
+</head>
+<body>
+  <div class="keygen-card">
+    <div class="header">
+      <div class="header-brand">
+        <svg width="42" height="42" viewBox="0 0 64 64" fill="none">
+          <polygon points="32,6 6,56 58,56" stroke="#c5a059" stroke-width="3" fill="rgba(197,160,89,0.12)"/>
+          <polygon points="32,16 14,52 50,52" stroke="#e5c888" stroke-width="1.5" fill="none"/>
+          <line x1="32" y1="6" x2="32" y2="56" stroke="#c5a059" stroke-width="1.5"/>
+          <line x1="20" y1="36" x2="44" y2="36" stroke="#c5a059" stroke-width="1.5"/>
+        </svg>
+        <div class="header-title">
+          <h1>DAR TOOL CONSULTING</h1>
+          <p>مولّد تراخيص العملاء — خاص بإدارة دار تول فقط</p>
+        </div>
+      </div>
+      <span class="badge-admin">نسخة الإدارة</span>
+    </div>
+
+    <div class="body">
+      <div class="form-group">
+        <label>معرّف جهاز العميل (Device ID)</label>
+        <div class="hint">أدخل الكود الذي يظهر للعميل في شاشة تفعيل البرنامج (مثال: DT-8F3A-9C21-4E7B)</div>
+        <input type="text" id="deviceIdInput" class="ltr-input" placeholder="DT-XXXX-XXXX-XXXX" />
+      </div>
+
+      <div class="row">
+        <div class="form-group">
+          <label>اسم العميل / المنشأة (اختياري)</label>
+          <input type="text" id="clientNameInput" placeholder="مثال: شركة التقنية المتقدمة" />
+        </div>
+        <div class="form-group">
+          <label>تاريخ انتهاء الصلاحية (اختياري)</label>
+          <input type="date" id="expiryInput" />
+        </div>
+      </div>
+
+      <button class="btn-generate" onclick="handleGenerate()">🔑 توليد رمز التفعيل الخاص بهذا الجهاز</button>
+
+      <div class="result-box" id="resultBox">
+        <div class="result-label">رمز التفعيل الدائم المختصر (يرتبط بجهاز العميل فقط):</div>
+        <div class="key-display" id="shortKeyOutput"></div>
+        <button class="btn-copy" onclick="copyKey('shortKeyOutput', this)">📋 نسخ رمز التفعيل المختصر</button>
+
+        <div id="extendedContainer" style="display:none; margin-top:16px; padding-top:14px; border-top:1px solid #e2e8f0;">
+          <div class="result-label">رمز التفعيل المتقدم (يتضمن اسم العميل / تاريخ الانتهاء):</div>
+          <div class="key-display" id="extKeyOutput" style="font-size:0.9rem;"></div>
+          <button class="btn-copy" onclick="copyKey('extKeyOutput', this)">📋 نسخ رمز التفعيل المتقدم</button>
+        </div>
+      </div>
+
+      <div class="warning-note">
+        ⚠️ <strong>تنبيه أمني:</strong> هذا الملف (`admin-keygen`) مخصص لمالك المشروع (دار تول للاستشارات) فقط لتوليد التراخيص، ولا يتم إرساله ضمن ملفات العميل.
+      </div>
+    </div>
+  </div>
+
+  <script>
+    const MASTER_SECRET = 'DAR_TOOL_CONSULTING_HR_ERP_2026_MASTER_SECRET_KEY_#9981_SA';
+
+    function normalizeDeviceId(deviceId) {
+      if (!deviceId) return '';
+      const stripped = deviceId.toUpperCase().replace(/[^A-Z0-9]/g, '');
+      const core = stripped.startsWith('DT') ? stripped.slice(2) : stripped;
+      if (core.length !== 12) return deviceId.trim().toUpperCase();
+      return `DT-${core.slice(0, 4)}-${core.slice(4, 8)}-${core.slice(8, 12)}`;
+    }
+
+    async function hmacSha256Hex(secret, message) {
+      const enc = new TextEncoder();
+      const key = await crypto.subtle.importKey(
+        'raw',
+        enc.encode(secret),
+        { name: 'HMAC', hash: 'SHA-256' },
+        false,
+        ['sign']
+      );
+      const sig = await crypto.subtle.sign('HMAC', key, enc.encode(message));
+      return Array.from(new Uint8Array(sig))
+        .map(b => b.toString(16).padStart(2, '0'))
+        .join('')
+        .toUpperCase();
+    }
+
+    function toBase64Url(str) {
+      const bytes = new TextEncoder().encode(str);
+      let binary = '';
+      bytes.forEach(b => binary += String.fromCharCode(b));
+      return btoa(binary).replace(/\+/g, '-').replace(/\//g, '_').replace(/=+$/, '');
+    }
+
+    async function handleGenerate() {
+      const rawDevice = document.getElementById('deviceIdInput').value.trim();
+      if (!rawDevice) {
+        alert('يرجى إدخال معرّف جهاز العميل (Device ID) أولاً.');
+        return;
+      }
+      const normId = normalizeDeviceId(rawDevice);
+      document.getElementById('deviceIdInput').value = normId;
+
+      const hmac = await hmacSha256Hex(MASTER_SECRET, `PERMANENT_V1::${normId}`);
+      const code = hmac.slice(0, 16);
+      const shortKey = `DTKEY-${code.slice(0, 4)}-${code.slice(4, 8)}-${code.slice(8, 12)}-${code.slice(12, 16)}`;
+
+      document.getElementById('shortKeyOutput').textContent = shortKey;
+
+      const clientName = document.getElementById('clientNameInput').value.trim();
+      const expiresAt = document.getElementById('expiryInput').value;
+
+      const extContainer = document.getElementById('extendedContainer');
+      if (clientName || expiresAt) {
+        const payloadObj = {
+          d: normId,
+          c: clientName,
+          e: expiresAt || null,
+          v: 1
+        };
+        const payloadStr = toBase64Url(JSON.stringify(payloadObj));
+        const extSig = (await hmacSha256Hex(MASTER_SECRET, `EXTENDED_V1::${payloadStr}`)).slice(0, 16);
+        const extKey = `DTLIC-${payloadStr}.${extSig}`;
+        document.getElementById('extKeyOutput').textContent = extKey;
+        extContainer.style.display = 'block';
+      } else {
+        extContainer.style.display = 'none';
+      }
+
+      document.getElementById('resultBox').classList.add('active');
+    }
+
+    function copyKey(elementId, btn) {
+      const text = document.getElementById(elementId).textContent;
+      navigator.clipboard.writeText(text);
+      const oldText = btn.textContent;
+      btn.textContent = '✅ تم النسخ بنجاح!';
+      setTimeout(() => { btn.textContent = oldText; }, 2000);
+    }
+  </script>
+</body>
+</html>

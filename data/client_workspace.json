@@ -1,0 +1,125 @@
+{
+  "company": {
+    "nameAr": "شركة نايف العقارية",
+    "nameEn": "شركة نايف العقارية",
+    "cr": "010216545465",
+    "phone": "02012651651",
+    "email": "",
+    "postal": "121351",
+    "managerName": "",
+    "docDate": "2026/10/23",
+    "logoDataUrl": "",
+    "signatureDataUrl": "",
+    "stampDataUrl": "",
+    "isSampleData": false
+  },
+  "customTemplates": [],
+  "formValuesById": {
+    "form-15": {
+      "employeeName": "أسامة بكر",
+      "jobTitle": "مستشار إداري",
+      "department": "الإدارة العامة",
+      "totalSalary": "15,000",
+      "idNumber": "",
+      "recipient": "إلى من يهمه الأمر،،"
+    },
+    "form-1": {
+      "offerDate": "2026/10/24",
+      "candidateName": "محمد بن عبدالله العتيبي",
+      "jobTitle": "أخصائي موارد بشرية أول",
+      "department": "إدارة الموارد البشرية",
+      "basicSalary": "10,000",
+      "housingAllowance": "2,500",
+      "transportAllowance": "1,000",
+      "totalSalary": "13,500",
+      "probationMonths": "3",
+      "expectedJoiningDate": "2026/11/01"
+    },
+    "form-2": {
+      "appDate": "2026/10/24",
+      "fullName": "خالد بن سعد الدوسري",
+      "nationality": "سعودي",
+      "idNumber": "1088776655",
+      "mobile": "0550001122",
+      "email": "khalid@example.com",
+      "positionApplied": "محاسب مالي",
+      "degree": "بكالوريوس",
+      "major": "محاسبة",
+      "gradYear": "2022",
+      "exp1Company": "شركة الأفق التجارية",
+      "exp1Title": "محاسب عام",
+      "exp1Period": "2022 - 2025"
+    },
+    "form-3": {
+      "docDate": "2026/10/24",
+      "employeeName": "أسامة بكر",
+      "employeeId": "EMP-1042",
+      "position": "مستشار إداري",
+      "department": "الإدارة العامة",
+      "joiningDate": "2026/10/24"
+    },
+    "form-4": {
+      "docDate": "2026/10/24",
+      "employeeName": "أسامة بكر",
+      "employeeId": "EMP-1042",
+      "mobileNo": "0501234567",
+      "nationalAddress": "الرياض - حي العليا - الرمز 12211",
+      "emergencyName": "أحمد بكر",
+      "emergencyRelation": "أخ",
+      "emergencyPhone": "0507654321",
+      "iban": "SA0000000000000000000000"
+    },
+    "form-5": {
+      "docDate": "2026/10/24",
+      "employeeName": "أسامة بكر",
+      "employeeId": "EMP-1042",
+      "position": "مستشار إداري",
+      "department": "الإدارة العامة",
+      "probationDuration": "3",
+      "startDate": "2026/07/24",
+      "endDate": "2026/10/24",
+      "rating": "ممتاز (Excellent)",
+      "recommendation": "تثبيت الموظف في الوظيفة"
+    },
+    "form-9": {
+      "employeeName": "أسامة بكر",
+      "employeeId": "EMP-1042",
+      "jobTitle": "مستشار إداري",
+      "department": "الإدارة العامة",
+      "warningLevel": "إنذار كتابي أول",
+      "violationDate": "2026/10/20",
+      "violationDetails": "التأخر المتكرر عن مواعيد الدوام الرسمي دون عذر مسبق"
+    },
+    "form-13": {
+      "employeeName": "أسامة بكر",
+      "employeeId": "EMP-1042",
+      "jobTitle": "مستشار إداري",
+      "department": "الإدارة العامة",
+      "leaveType": "إجازة سنوية اعتيادية",
+      "startDate": "2026/11/01",
+      "endDate": "2026/11/15",
+      "daysCount": "15 يوماً",
+      "substituteEmployee": "سلمان العلي"
+    },
+    "form-21": {
+      "employeeName": "أسامة بكر",
+      "employeeId": "EMP-1042",
+      "jobTitle": "مستشار إداري",
+      "department": "الإدارة العامة",
+      "lastWorkDay": "2026/10/30",
+      "reason": "انتهاء عقد العمل"
+    },
+    "form-30": {
+      "employeeName": "أسامة بكر",
+      "jobTitle": "مستشار إداري",
+      "department": "الإدارة العامة",
+      "courseName": "القيادة الإدارية الحديثة وتطوير الأداء",
+      "provider": "دار تول للاستشارات والتدريب",
+      "courseDate": "2026/11/10 لمدة 5 أيام"
+    }
+  },
+  "selectedFormId": "form-5",
+  "showDecorativeFrame": true,
+  "uiLang": "ar",
+  "updatedAt": "2026-10-24T19:23:05.492Z"
+}

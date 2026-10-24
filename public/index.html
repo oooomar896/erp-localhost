@@ -1,0 +1,649 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>برنامج نماذج الموارد البشرية — دار تول للاستشارات</title>
+  <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="/css/styles.css" />
+</head>
+<body>
+
+  <!-- =========================================================
+       1. DEVICE LICENSE ACTIVATION SCREEN (LOCKED TO 1 HARDWARE ID)
+       ========================================================= -->
+  <div class="license-overlay" id="licenseOverlay">
+    <div class="license-modal">
+      <div class="license-modal-header">
+        <svg width="42" height="42" viewBox="0 0 64 64" fill="none">
+          <polygon points="32,6 6,56 58,56" stroke="#c5a059" stroke-width="3" fill="rgba(197,160,89,0.15)"/>
+          <polygon points="32,17 15,52 49,52" stroke="#dfbe7f" stroke-width="1.5" fill="none"/>
+          <line x1="32" y1="6" x2="32" y2="56" stroke="#c5a059" stroke-width="1.5"/>
+          <line x1="19" y1="36" x2="45" y2="36" stroke="#c5a059" stroke-width="1.5"/>
+        </svg>
+        <div>
+          <h2>تفعيل برنامج نماذج الموارد البشرية</h2>
+          <p>DAR TOOL CONSULTING — دار تول للاستشارات</p>
+        </div>
+      </div>
+
+      <div class="license-modal-body">
+        <p style="font-size:0.86rem; color:#334155; margin-bottom:14px; line-height:1.6;">
+          مرحباً بك. لتشغيل البرنامج على هذا الجهاز، يرجى نسخ <strong>معرّف الجهاز</strong> أدناه وإرساله إلى إدارة <strong>دار تول للاستشارات</strong> للحصول على رمز التفعيل الخاص بجهازك.
+        </p>
+
+        <div class="device-id-box">
+          <div class="device-id-label">
+            <span>معرّف هذا الجهاز (Device ID):</span>
+            <span style="font-size:0.74rem; color:#0d9488;">مرتبط بالبصمة الفريدة للجهاز</span>
+          </div>
+          <div class="device-id-row">
+            <div class="device-id-value" id="displayDeviceId">DT-....-....-....</div>
+            <button type="button" class="btn-copy-id" onclick="copyDeviceId(this)">📋 نسخ المعرّف</button>
+          </div>
+        </div>
+
+        <div class="license-input-group">
+          <label for="activationKeyInput">رمز التفعيل (Activation Key):</label>
+          <input
+            type="text"
+            id="activationKeyInput"
+            class="license-key-input"
+            placeholder="DTKEY-XXXX-XXXX-XXXX-XXXX"
+            autocomplete="off"
+          />
+        </div>
+
+        <div class="license-input-group">
+          <label for="activationClientInput">اسم المنشأة / العميل (اختياري):</label>
+          <input
+            type="text"
+            id="activationClientInput"
+            style="width:100%; padding:10px 12px; border:1px solid #dce2ec; border-radius:8px; font-size:0.88rem;"
+            placeholder="مثال: شركة التقنية المتقدمة"
+          />
+        </div>
+
+        <div class="license-error" id="licenseErrorBox"></div>
+
+        <button type="button" class="btn-activate" onclick="submitLicenseActivation()">
+          🔓 تفعيل البرنامج على هذا الجهاز
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- =========================================================
+       2. TOP HEADER BAR (Matches ui ux.jpeg)
+       ========================================================= -->
+  <header class="app-header">
+    <!-- Left Visually: Dar Tool Logo + App Title -->
+    <div class="header-left-brand">
+      <div class="dartool-brand-logo">
+        <svg width="40" height="40" viewBox="0 0 64 64" fill="none">
+          <polygon points="32,6 6,56 58,56" stroke="#c5a059" stroke-width="2.8" fill="rgba(197,160,89,0.15)"/>
+          <polygon points="32,17 15,52 49,52" stroke="#dfbe7f" stroke-width="1.3" fill="none"/>
+          <line x1="32" y1="6" x2="32" y2="56" stroke="#c5a059" stroke-width="1.3"/>
+          <line x1="23" y1="26" x2="32" y2="56" stroke="#c5a059" stroke-width="1"/>
+          <line x1="41" y1="26" x2="32" y2="56" stroke="#c5a059" stroke-width="1"/>
+          <line x1="16" y1="39" x2="48" y2="39" stroke="#c5a059" stroke-width="1.2"/>
+        </svg>
+        <div class="dartool-brand-text">
+          <span class="brand-main">DAR TOOL</span>
+          <span class="brand-sub">CONSULTING</span>
+        </div>
+      </div>
+
+      <div class="header-divider"></div>
+
+      <div class="header-app-title">
+        <h1 id="uiAppTitle">برنامج نماذج الموارد البشرية</h1>
+        <p id="uiAppSubtitle">إدارة نماذجك بسهولة واحترافية</p>
+      </div>
+    </div>
+
+    <!-- Right Visually: Single Language Switcher (FR-07) & Client Badge -->
+    <div class="header-right-actions">
+      <button type="button" class="lang-switcher-btn" id="langSwitcherBtn" onclick="toggleAppLanguage()" title="تغيير اللغة / Switch Language">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <circle cx="12" cy="12" r="10"></circle>
+          <line x1="2" y1="12" x2="22" y2="12"></line>
+          <path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"></path>
+        </svg>
+        <span id="currentLangLabel">العربية</span>
+        <span style="font-size:0.7rem; opacity:0.8;">▾</span>
+      </button>
+
+      <div class="header-divider"></div>
+
+      <div class="client-profile-badge" onclick="openModal('settingsModal')" title="حالة الترخيص والإعدادات">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor">
+          <path d="M12 12c2.7 0 5-2.3 5-5s-2.3-5-5-5-5 2.3-5 5 2.3 5 5 5zm0 2c-3.3 0-10 1.7-10 5v3h20v-3c0-3.3-6.7-5-10-5z"/>
+        </svg>
+        <span id="headerClientName">العميل</span>
+      </div>
+    </div>
+  </header>
+
+  <!-- =========================================================
+       3. MAIN 3-COLUMN WORKSPACE (Matches ui ux.jpeg)
+       ========================================================= -->
+  <main class="app-workspace">
+
+    <!-- COLUMN 1 (LEFT VISUALLY): SIDEBAR MENU + COMPANY SUMMARY -->
+    <aside class="col-left">
+      <!-- Navigation Card -->
+      <nav class="panel-card nav-menu-card">
+        <ul class="nav-list">
+          <li class="nav-item active" data-nav="home" onclick="handleNavClick('home')">
+            <div class="nav-item-content">
+              <span id="navHomeText">الرئيسية</span>
+              <span class="nav-icon">
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor"><path d="M10 20v-6h4v6h5v-8h3L12 3 2 12h3v8z"/></svg>
+              </span>
+            </div>
+          </li>
+          <li class="nav-item" data-nav="forms" onclick="handleNavClick('forms')">
+            <div class="nav-item-content">
+              <span id="navFormsText">النماذج</span>
+              <span class="nav-icon">
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor"><path d="M14 2H6c-1.1 0-2 .9-2 2v16c0 1.1.9 2 2 2h12c1.1 0 2-.9 2-2V8l-6-6zm2 16H8v-2h8v2zm0-4H8v-2h8v2zm-3-5V3.5L18.5 9H13z"/></svg>
+              </span>
+            </div>
+          </li>
+          <li class="nav-item" data-nav="company" onclick="handleNavClick('company')">
+            <div class="nav-item-content">
+              <span id="navCompanyText">بيانات المنشأة</span>
+              <span class="nav-icon">
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor"><path d="M12 7V3H2v18h20V7H12zM6 19H4v-2h2v2zm0-4H4v-2h2v2zm0-4H4V9h2v2zm0-4H4V5h2v2zm4 12H8v-2h2v2zm0-4H8v-2h2v2zm0-4H8V9h2v2zm0-4H8V5h2v2zm10 12h-8v-2h2v-2h-2v-2h2v-2h-2V9h8v10zm-2-8h-2v2h2v-2zm0 4h-2v2h2v-2z"/></svg>
+              </span>
+            </div>
+          </li>
+          <li class="nav-item" data-nav="settings" onclick="handleNavClick('settings')">
+            <div class="nav-item-content">
+              <span id="navSettingsText">إعدادات</span>
+              <span class="nav-icon">
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor"><path d="M19.14 12.94c.04-.3.06-.61.06-.94 0-.32-.02-.64-.07-.94l2.03-1.58a.49.49 0 0 0 .12-.61l-1.92-3.32a.49.49 0 0 0-.59-.22l-2.39.96c-.5-.38-1.03-.7-1.62-.94l-.36-2.54a.484.484 0 0 0-.48-.41h-3.84c-.24 0-.43.17-.47.41l-.36 2.54c-.59.24-1.13.57-1.62.94l-2.39-.96c-.22-.08-.47 0-.59.22L2.74 8.87c-.12.21-.08.47.12.61l2.03 1.58c-.05.3-.09.63-.09.94s.02.64.07.94l-2.03 1.58a.49.49 0 0 0-.12.61l1.92 3.32c.12.22.37.29.59.22l2.39-.96c.5.38 1.03.7 1.62.94l.36 2.54c.05.24.24.41.48.41h3.84c.24 0 .44-.17.47-.41l.36-2.54c.59-.24 1.13-.56 1.62-.94l2.39.96c.22.08.47 0 .59-.22l1.92-3.32c.12-.22.07-.47-.12-.61l-2.01-1.58zM12 15.6c-1.98 0-3.6-1.62-3.6-3.6s1.62-3.6 3.6-3.6 3.6 1.62 3.6 3.6-1.62 3.6-3.6 3.6z"/></svg>
+              </span>
+            </div>
+          </li>
+          <li class="nav-item" data-nav="help" onclick="handleNavClick('help')">
+            <div class="nav-item-content">
+              <span id="navHelpText">مساعدة</span>
+              <span class="nav-icon">
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm1 17h-2v-2h2v2zm2.07-7.75l-.9.92C13.45 12.9 13 13.5 13 15h-2v-.5c0-1.1.45-2.1 1.17-2.83l1.24-1.26c.37-.36.59-.86.59-1.41 0-1.1-.9-2-2-2s-2 .9-2 2H8c0-2.21 1.79-4 4-4s4 1.79 4 4c0 .88-.36 1.68-.93 2.25z"/></svg>
+              </span>
+            </div>
+          </li>
+        </ul>
+      </nav>
+
+      <!-- Company Info Card -->
+      <section class="panel-card company-summary-card">
+        <div class="company-card-header">
+          <span id="sideCompanyTitle">بيانات المنشأة</span>
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="var(--navy-main)"><path d="M12 7V3H2v18h20V7H12zM6 19H4v-2h2v2zm0-4H4v-2h2v2zm0-4H4V9h2v2zm0-4H4V5h2v2zm4 12H8v-2h2v2zm0-4H8v-2h2v2zm0-4H8V9h2v2zm0-4H8V5h2v2zm10 12h-8v-2h2v-2h-2v-2h2v-2h-2V9h8v10zm-2-8h-2v2h2v-2zm0 4h-2v2h2v-2z"/></svg>
+        </div>
+
+        <span class="sample-data-badge" id="sampleDataNotice">بيانات افتراضية — اضغط تعديل لإدخال بياناتك</span>
+
+        <div class="company-info-list">
+          <div class="company-info-item">
+            <div class="company-info-label" id="lblSideCompName">اسم المنشأة</div>
+            <div class="company-info-val" id="summaryCompName">شركة التقنية المتقدمة</div>
+          </div>
+          <div class="company-info-item">
+            <div class="company-info-label" id="lblSideCr">السجل التجاري</div>
+            <div class="company-info-val" id="summaryCompCr">1010500123</div>
+          </div>
+          <div class="company-info-item">
+            <div class="company-info-label" id="lblSidePhone">الهاتف</div>
+            <div class="company-info-val" id="summaryCompPhone">0114000000</div>
+          </div>
+          <div class="company-info-item">
+            <div class="company-info-label" id="lblSideEmail">البريد الإلكتروني</div>
+            <div class="company-info-val" id="summaryCompEmail">hr@company.sa</div>
+          </div>
+          <div class="company-info-item">
+            <div class="company-info-label" id="lblSidePostal">الرمز البريدي</div>
+            <div class="company-info-val" id="summaryCompPostal">12345</div>
+          </div>
+        </div>
+
+        <button type="button" class="btn-edit-company" onclick="openModal('companyModal')">
+          <span>✏️</span>
+          <span id="btnEditCompanyText">تعديل البيانات</span>
+        </button>
+      </section>
+    </aside>
+
+    <!-- COLUMN 2 (CENTER): SELECT FORM & FILL FIELDS -->
+    <section class="col-center">
+      <div class="panel-card">
+        <div class="center-section-header">
+          <h2 class="center-section-title" id="centerTitle">اختر النموذج المناسب</h2>
+          <button type="button" class="btn-new-blank-letter" id="btnBlankLetter" onclick="activateBlankLetterMode()">
+            📄 <span id="btnBlankLetterText">إنشاء خطاب جديد</span>
+          </button>
+        </div>
+
+        <!-- Search Input (FR-04) -->
+        <div class="search-bar-wrap">
+          <span class="search-icon-right">🔍</span>
+          <input
+            type="text"
+            id="formSearchInput"
+            class="search-input"
+            placeholder="ابحث عن نموذج ..."
+            oninput="handleSearchAndFilter()"
+          />
+          <span class="search-chevron-left">⌄</span>
+        </div>
+
+        <!-- Language Filter Tabs (الكل | العربية | الإنجليزية) -->
+        <div class="lang-filter-tabs">
+          <button type="button" class="lang-tab-btn active" data-langfilter="all" onclick="setFormLangFilter('all', this)">الكل</button>
+          <button type="button" class="lang-tab-btn" data-langfilter="ar" onclick="setFormLangFilter('ar', this)">العربية</button>
+          <button type="button" class="lang-tab-btn" data-langfilter="en" onclick="setFormLangFilter('en', this)">الإنجليزية</button>
+        </div>
+
+        <!-- 8 Category Cards Grid (2x4 matching ui ux.jpeg) -->
+        <div class="categories-grid" id="categoriesGrid"></div>
+
+        <!-- Forms Table Section with Show/Hide Toggle (FR-03) -->
+        <div class="forms-list-header">
+          <span class="forms-list-title" id="formsListTitle">قائمة النماذج</span>
+          <div class="forms-list-meta">
+            <button type="button" class="btn-toggle-table" id="btnToggleTable" onclick="toggleFormsTable()">إخفاء الجدول</button>
+            <span id="formsCountBadge">(72)</span>
+          </div>
+        </div>
+
+        <div class="forms-table-container" id="formsTableContainer">
+          <table class="forms-table">
+            <thead>
+              <tr>
+                <th style="width:42px; text-align:right;">#</th>
+                <th style="text-align:right;" id="thFormName">اسم النموذج</th>
+                <th style="text-align:center;" id="thCategory">الفئة</th>
+                <th style="width:40px; text-align:center;"></th>
+              </tr>
+            </thead>
+            <tbody id="formsTableBody"></tbody>
+          </table>
+        </div>
+
+        <!-- Dynamic Fields Editor (تعديل بيانات النموذج) -->
+        <div class="fields-editor-box" id="fieldsEditorBox">
+          <div class="fields-editor-title">
+            <span id="fieldsEditorHeading">تعديل بيانات النموذج (اختياري)</span>
+            <button type="button" class="btn-toggle-table" onclick="clearCurrentFormInputs()">تفريغ الحقول</button>
+          </div>
+          <div class="fields-grid" id="dynamicFieldsGrid"></div>
+        </div>
+
+        <!-- Bottom Action Buttons (طباعة | معاينة | حفظ كملف PDF) -->
+        <div class="center-bottom-actions">
+          <button type="button" class="action-btn action-btn-primary" onclick="triggerPrintDocument()">
+            🖨️ <span id="btnPrintText">طباعة</span>
+          </button>
+          <button type="button" class="action-btn action-btn-secondary" onclick="scrollToPreview()">
+            👁️ <span id="btnPreviewText">معاينة</span>
+          </button>
+          <button type="button" class="action-btn action-btn-outline" onclick="triggerExportPdf()">
+            📄 <span id="btnSavePdfText">حفظ كملف PDF</span>
+          </button>
+        </div>
+      </div>
+    </section>
+
+    <!-- COLUMN 3 (RIGHT VISUALLY): LIVE A4 LETTER PREVIEW (معاينة الخطاب) -->
+    <section class="col-right" id="previewSection">
+      <div class="panel-card">
+        <div class="preview-card-header">
+          <h2 class="preview-card-title" id="previewTitle">معاينة الخطاب</h2>
+          <div class="preview-toolbar">
+            <button type="button" class="toolbar-btn" id="btnToggleEditDoc" onclick="toggleDirectDocEditing()">
+              ✏️ <span id="lblToolbarEdit">تعديل</span>
+            </button>
+            <button type="button" class="toolbar-btn" onclick="insertCustomParagraph()">
+              <strong>T</strong> <span id="lblToolbarAddText">إضافة نص</span>
+            </button>
+            <button type="button" class="toolbar-btn" onclick="saveCurrentWorkspaceManual()">
+              📥 <span id="lblToolbarSave">حفظ</span>
+            </button>
+            <button type="button" class="toolbar-btn" onclick="triggerExportPdf()">
+              📄 <span>PDF</span>
+            </button>
+          </div>
+        </div>
+
+        <!-- A4 Document Sheet Container -->
+        <div class="a4-viewport">
+          <article class="a4-sheet" id="a4Sheet">
+            <!-- Top-Left Decorative Corner (Matches ui ux.jpeg) -->
+            <svg class="corner-ornament corner-top-left" viewBox="0 0 100 100" fill="none">
+              <polygon points="0,0 72,0 52,14 14,14 14,52 0,72" fill="#162538"/>
+              <polygon points="72,0 92,0 76,12 56,12" fill="#c5a059"/>
+              <line x1="6" y1="88" x2="88" y2="6" stroke="#c5a059" stroke-width="1.5"/>
+            </svg>
+
+            <!-- Bottom-Right Decorative Corner (Matches ui ux.jpeg) -->
+            <svg class="corner-ornament corner-bottom-right" viewBox="0 0 100 100" fill="none">
+              <polygon points="100,100 28,100 48,86 86,86 86,48 100,28" fill="#162538"/>
+              <polygon points="28,100 8,100 24,88 44,88" fill="#c5a059"/>
+              <line x1="94" y1="12" x2="12" y2="94" stroke="#c5a059" stroke-width="1.5"/>
+            </svg>
+
+            <!-- Top Half: Client Letterhead + Title + Body -->
+            <div>
+              <!-- Client Letterhead (FR-01 & FR-02: ONLY Client Logo & Data appear here) -->
+              <header class="doc-letterhead">
+                <div class="doc-company-meta" id="docCompanyMeta">
+                  <div id="docMetaCrRow"><strong>س.ت:</strong> <span id="docCompCr">1010500123</span></div>
+                  <div id="docMetaPhoneRow"><strong>هاتف:</strong> <span id="docCompPhone">0114000000</span></div>
+                  <div id="docMetaEmailRow"><strong>البريد الإلكتروني:</strong> <span id="docCompEmail">hr@company.sa</span></div>
+                  <div id="docMetaPostalRow"><strong>الرمز البريدي:</strong> <span id="docCompPostal">12345</span></div>
+                </div>
+
+                <div class="doc-company-logo-area">
+                  <div id="docClientLogoContainer">
+                    <!-- Default clean client emblem if no custom logo uploaded yet -->
+                    <svg width="56" height="48" viewBox="0 0 64 54" fill="none" id="defaultClientBuildingSvg">
+                      <path d="M12 48V18L26 10V48H12Z" fill="#162538"/>
+                      <path d="M29 48V6L43 14V48H29Z" fill="#213750"/>
+                      <path d="M46 48V24L54 28V48H46Z" fill="#162538"/>
+                      <rect x="16" y="22" width="3" height="22" fill="#ffffff"/>
+                      <rect x="21" y="22" width="3" height="22" fill="#ffffff"/>
+                      <rect x="33" y="14" width="3" height="30" fill="#ffffff"/>
+                      <rect x="38" y="14" width="3" height="30" fill="#ffffff"/>
+                      <path d="M6 48H58" stroke="#162538" stroke-width="2.5"/>
+                    </svg>
+                    <img id="docClientUploadedLogo" class="doc-client-logo-img" style="display:none;" alt="شعار المنشأة" />
+                  </div>
+                  <div class="doc-client-name-ar" id="docCompNameAr">شركة التقنية المتقدمة</div>
+                  <div class="doc-client-name-en" id="docCompNameEn">Advanced Technology Company</div>
+                </div>
+              </header>
+
+              <!-- Date Row -->
+              <div class="doc-date-row" id="docDateRow">
+                التاريخ : <span id="docCurrentDate" contenteditable="true">2026/10/24</span>
+              </div>
+
+              <!-- Document Title -->
+              <div class="doc-title-wrap">
+                <h3 class="doc-title-heading" id="docMainHeading" contenteditable="true">شهادة تعريف بالراتب</h3>
+              </div>
+
+              <!-- Editable Document Body (FR-06) -->
+              <div class="doc-editable-region" id="docEditableBody" contenteditable="false"></div>
+            </div>
+
+            <!-- Bottom Half: Sign-off & Stamp -->
+            <footer class="doc-signoff-footer">
+              <!-- Right side in RTL: HR Manager Signature -->
+              <div class="doc-signature-column">
+                <div class="doc-signature-title" id="docManagerTitle" contenteditable="true">مدير الموارد البشرية</div>
+                <div class="doc-signature-line" id="docSignatureContainer">
+                  <svg width="95" height="32" viewBox="0 0 120 40" fill="none" id="defaultSignatureSvg">
+                    <path d="M15 28 C35 10, 45 32, 62 18 C75 8, 60 32, 105 14" stroke="#1d3148" stroke-width="2" stroke-linecap="round" fill="none"/>
+                    <path d="M28 32 L85 24" stroke="#1d3148" stroke-width="1.2" stroke-linecap="round"/>
+                  </svg>
+                  <img id="docUploadedSignature" style="max-height:36px; max-width:120px; display:none;" alt="التوقيع" />
+                </div>
+                <div id="docManagerNameDisplay" style="font-size:0.76rem; color:#475569; margin-top:4px;"></div>
+              </div>
+
+              <!-- Left side in RTL: Company Stamp -->
+              <div class="doc-stamp-column">
+                <div class="doc-stamp-label" id="docStampLabel">ختم المنشأة</div>
+                <div class="doc-stamp-frame" id="docStampFrame">
+                  <div id="defaultStampContent" style="display:flex; flex-direction:column; align-items:center;">
+                    <svg width="28" height="24" viewBox="0 0 64 54" fill="none" style="margin-bottom:2px;">
+                      <path d="M12 48V18L26 10V48H12Z" fill="#1e3a8a"/>
+                      <path d="M29 48V6L43 14V48H29Z" fill="#1e3a8a"/>
+                      <path d="M46 48V24L54 28V48H46Z" fill="#1e3a8a"/>
+                    </svg>
+                    <div style="font-size:0.74rem; font-weight:800;" id="stampCompName">شركة التقنية المتقدمة</div>
+                    <div style="font-size:0.68rem; font-weight:600;">س.ت: <span id="stampCompCr">1010500123</span></div>
+                  </div>
+                  <img id="docUploadedStamp" style="max-height:62px; max-width:135px; display:none;" alt="ختم المنشأة" />
+                </div>
+              </div>
+            </footer>
+          </article>
+        </div>
+
+        <!-- Bottom Preview Bar (Pagination & Zoom) -->
+        <div class="preview-bottom-bar">
+          <div class="page-controls">
+            <button type="button" class="mini-ctrl-btn" title="الصفحة السابقة">‹</button>
+            <span style="padding:0 6px; font-weight:700;">1 / 1</span>
+            <button type="button" class="mini-ctrl-btn" title="الصفحة التالية">›</button>
+          </div>
+
+          <div class="zoom-controls">
+            <button type="button" class="mini-ctrl-btn" onclick="adjustZoom(-10)" title="تصغير">−</button>
+            <span id="zoomPercentLabel" style="min-width:42px; text-align:center; font-weight:700;">100%</span>
+            <button type="button" class="mini-ctrl-btn" onclick="adjustZoom(10)" title="تكبير">+</button>
+            <button type="button" class="mini-ctrl-btn" onclick="resetZoom()" title="ملائمة الشاشة">⛶</button>
+          </div>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <!-- =========================================================
+       4. APP FOOTER (Dar Tool Consulting - Hidden in Print)
+       ========================================================= -->
+  <footer class="app-footer">
+    <div style="display:flex; align-items:center; gap:8px;">
+      <svg width="24" height="24" viewBox="0 0 64 64" fill="none">
+        <polygon points="32,6 6,56 58,56" stroke="#c5a059" stroke-width="3" fill="rgba(197,160,89,0.15)"/>
+        <line x1="32" y1="6" x2="32" y2="56" stroke="#c5a059" stroke-width="1.5"/>
+      </svg>
+      <span style="font-weight:700; letter-spacing:1.5px; color:#f8fafc; font-size:0.75rem;">DAR TOOL CONSULTING</span>
+    </div>
+    <div id="footerCopyrightText" style="direction:rtl;">
+      جميع الحقوق محفوظة © 2026 - دار تول للاستشارات
+    </div>
+  </footer>
+
+  <!-- =========================================================
+       5. MODAL: COMPANY PROFILE & LOGO UPLOAD (بيانات المنشأة)
+       ========================================================= -->
+  <div class="modal-backdrop" id="companyModal">
+    <div class="modal-window">
+      <div class="modal-header">
+        <h3>🏢 إعداد بيانات المنشأة والهوية المطبوعة</h3>
+        <button type="button" class="modal-close-btn" onclick="closeModal('companyModal')">✕</button>
+      </div>
+      <div class="modal-body">
+        <p style="font-size:0.82rem; color:#475569; margin-bottom:14px;">
+          تنعكس هذه البيانات مباشرة على ترويسة وختم كافة النماذج والخطابات المطبوعة الخاصة بمنشأتك.
+        </p>
+        <div class="modal-grid">
+          <div class="modal-field">
+            <label>اسم المنشأة (بالعربية)</label>
+            <input type="text" id="inputCompNameAr" placeholder="مثال: شركة التقنية المتقدمة" />
+          </div>
+          <div class="modal-field">
+            <label>اسم المنشأة (بالإنجليزية)</label>
+            <input type="text" id="inputCompNameEn" placeholder="Advanced Technology Company" dir="ltr" />
+          </div>
+          <div class="modal-field">
+            <label>السجل التجاري (س.ت)</label>
+            <input type="text" id="inputCompCr" placeholder="1010500123" />
+          </div>
+          <div class="modal-field">
+            <label>رقم الهاتف</label>
+            <input type="text" id="inputCompPhone" placeholder="0114000000" />
+          </div>
+          <div class="modal-field">
+            <label>البريد الإلكتروني</label>
+            <input type="email" id="inputCompEmail" placeholder="hr@company.sa" dir="ltr" />
+          </div>
+          <div class="modal-field">
+            <label>الرمز البريدي / العنوان</label>
+            <input type="text" id="inputCompPostal" placeholder="12345" />
+          </div>
+          <div class="modal-field">
+            <label>اسم مدير الموارد البشرية (اختياري)</label>
+            <input type="text" id="inputManagerName" placeholder="يظهر أسفل التوقيع في الخطاب" />
+          </div>
+          <div class="modal-field">
+            <label>تاريخ المستند الافتراضي</label>
+            <input type="text" id="inputDocDate" placeholder="2026/10/24" />
+          </div>
+
+          <!-- Upload Client Logo (FR-02) -->
+          <div class="modal-field full-width">
+            <label>شعار المنشأة (يظهر في ترويسة الخطاب المطبوع)</label>
+            <div class="upload-preview-box">
+              <input type="file" id="logoFileInput" accept="image/*" onchange="handleImageUpload(event, 'logo')" />
+              <button type="button" class="btn-toggle-table" onclick="clearUploadedImage('logo')">حذف الشعار المرفوع</button>
+            </div>
+          </div>
+
+          <!-- Upload Signature & Stamp -->
+          <div class="modal-field">
+            <label>صورة توقيع المدير (اختياري)</label>
+            <div class="upload-preview-box">
+              <input type="file" id="sigFileInput" accept="image/*" onchange="handleImageUpload(event, 'signature')" />
+              <button type="button" class="btn-toggle-table" onclick="clearUploadedImage('signature')">حذف</button>
+            </div>
+          </div>
+          <div class="modal-field">
+            <label>صورة ختم المنشأة (اختياري)</label>
+            <div class="upload-preview-box">
+              <input type="file" id="stampFileInput" accept="image/*" onchange="handleImageUpload(event, 'stamp')" />
+              <button type="button" class="btn-toggle-table" onclick="clearUploadedImage('stamp')">حذف</button>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="action-btn action-btn-outline" onclick="clearAllCompanyData()">تفريغ الحقول التجريبية</button>
+        <button type="button" class="action-btn action-btn-primary" onclick="saveCompanyFromModal()">💾 حفظ وتطبيق على الترويسة</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- =========================================================
+       6. MODAL: ADD CUSTOM TEMPLATE (إضافة نموذج جديد)
+       ========================================================= -->
+  <div class="modal-backdrop" id="addTemplateModal">
+    <div class="modal-window">
+      <div class="modal-header">
+        <h3>📄 إضافة نموذج جديد إلى قائمة النماذج</h3>
+        <button type="button" class="modal-close-btn" onclick="closeModal('addTemplateModal')">✕</button>
+      </div>
+      <div class="modal-body">
+        <div class="modal-grid">
+          <div class="modal-field">
+            <label>اسم النموذج</label>
+            <input type="text" id="newTplTitle" placeholder="مثال: خطاب تكليف بمهمة عمل" />
+          </div>
+          <div class="modal-field">
+            <label>الفئة</label>
+            <select id="newTplCategory">
+              <option value="recruitment">الاستقطاب والتوظيف</option>
+              <option value="payroll">الرواتب والمكافآت</option>
+              <option value="policies">اللوائح والأنظمة</option>
+              <option value="training">التدريب والتطوير</option>
+              <option value="reports">التقارير والنماذج</option>
+              <option value="health">المهام الصحية</option>
+              <option value="admin">العمليات الإدارية</option>
+            </select>
+          </div>
+          <div class="modal-field full-width">
+            <label>عنوان الخطاب داخل صفحة A4</label>
+            <input type="text" id="newTplHeading" placeholder="مثال: قرار تكليف بمهمة عمل" />
+          </div>
+          <div class="modal-field full-width">
+            <label>نص ومحتوى النموذج (يمكنك استخدام {اسم_الموظف}، {المسمى_الوظيفي}، {القسم})</label>
+            <textarea id="newTplBody" rows="5" placeholder="اكتب النص الافتراضي للنموذج هنا..."></textarea>
+          </div>
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="action-btn action-btn-outline" onclick="closeModal('addTemplateModal')">إلغاء</button>
+        <button type="button" class="action-btn action-btn-primary" onclick="saveNewCustomTemplate()">+ حفظ النموذج</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- =========================================================
+       7. MODAL: SETTINGS & BACKUP & LICENSE INFO (الإعدادات)
+       ========================================================= -->
+  <div class="modal-backdrop" id="settingsModal">
+    <div class="modal-window">
+      <div class="modal-header">
+        <h3>⚙️ الإعدادات والنسخ الاحتياطي والترخيص</h3>
+        <button type="button" class="modal-close-btn" onclick="closeModal('settingsModal')">✕</button>
+      </div>
+      <div class="modal-body">
+        <div style="background:#f8fafc; border:1px solid #cbd5e1; border-radius:10px; padding:14px; margin-bottom:16px;">
+          <h4 style="color:#162538; margin-bottom:8px;">🔐 معلومات ترخيص هذا الجهاز</h4>
+          <p style="font-size:0.84rem; margin-bottom:4px;"><strong>معرّف الجهاز (Device ID):</strong> <span id="settingsDeviceId" style="font-family:monospace; font-weight:700;"></span></p>
+          <p style="font-size:0.84rem; margin-bottom:4px;"><strong>حالة الترخيص:</strong> <span id="settingsLicenseType" style="color:#0d9488; font-weight:700;">مفعّل</span></p>
+          <p style="font-size:0.78rem; color:#64748b;">هذا الترخيص مشفر ومرتبط بالبصمة الفيزيائية لهذا الجهاز فقط ولا يعمل عند نسخه لجهاز آخر.</p>
+        </div>
+
+        <div class="modal-grid">
+          <div class="modal-field full-width">
+            <label style="display:flex; align-items:center; gap:8px; cursor:pointer;">
+              <input type="checkbox" id="chkShowDecorFrame" checked onchange="toggleA4FrameSetting(this.checked)" style="width:18px; height:18px;" />
+              <span>إظهار الإطار الزخرفي الذهبي والزوايا الهندسية في صفحة المستند (قم بإلغائه إذا كنت تطبع على ورق رسمي مطبوع مسبقاً)</span>
+            </label>
+          </div>
+
+          <div class="modal-field">
+            <label>تصدير نسخة احتياطية من بياناتك</label>
+            <button type="button" class="action-btn action-btn-outline" onclick="exportWorkspaceBackup()">📥 تحميل ملف النسخة الاحتياطية (JSON)</button>
+          </div>
+
+          <div class="modal-field">
+            <label>استعادة نسخة احتياطية سابقة</label>
+            <input type="file" accept=".json" onchange="importWorkspaceBackup(event)" />
+          </div>
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="action-btn action-btn-primary" onclick="closeModal('settingsModal')">إغلاق</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- =========================================================
+       8. MODAL: HELP GUIDE (المساعدة)
+       ========================================================= -->
+  <div class="modal-backdrop" id="helpModal">
+    <div class="modal-window">
+      <div class="modal-header">
+        <h3>❓ دليل استخدام برنامج نماذج الموارد البشرية</h3>
+        <button type="button" class="modal-close-btn" onclick="closeModal('helpModal')">✕</button>
+      </div>
+      <div class="modal-body" style="line-height:1.8; font-size:0.88rem; color:#334155;">
+        <ol style="padding-right:20px;">
+          <li><strong>إعداد هوية المنشأة:</strong> من البطاقة الجانبية (بيانات المنشأة) اضغط <em>تعديل البيانات</em> لإدخال اسم شركتك، السجل التجاري، ورفع شعار منشأتك والختم والتوقيع.</li>
+          <li><strong>اختيار نموذج جاهز:</strong> ابحث عن النموذج أو اختر الفئة المطلوبة، ثم انقر على اسم النموذج في الجدول لتحديث المعاينة فوراً.</li>
+          <li><strong>تعبئة الحقول أو التحرير المباشر:</strong> يمكنك تعبئة الحقول المخصصة أسفل الجدول، أو الضغط على زر <strong>(✏️ تعديل)</strong> أعلى المعاينة للكتابة والتعديل بحرية داخل ورقة الخطاب مباشرة.</li>
+          <li><strong>إنشاء خطاب فارغ:</strong> اضغط زر <strong>(📄 إنشاء خطاب جديد)</strong> لفتح صفحة فارغة بترويسة منشأتك وكتابة أي خطاب مخصص باللغة العربية أو الإنجليزية.</li>
+          <li><strong>الطباعة وحفظ PDF:</strong> اضغط <strong>طباعة</strong> أو <strong>حفظ كملف PDF</strong>؛ سيقوم البرنامج بطباعة ورقة خطاﺑﻚ فقط بشعار منشأتك دون أي أزرار أو شعارات خاصة بالبرنامج.</li>
+        </ol>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="action-btn action-btn-primary" onclick="closeModal('helpModal')">فهمت</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Toast Notification -->
+  <div class="toast-msg" id="toastMsg">تم الحفظ بنجاح</div>
+
+  <script src="/js/templates-data.js"></script>
+  <script src="/js/app.js"></script>
+</body>
+</html>

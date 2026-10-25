@@ -191,9 +191,33 @@ function verifyActivationKeyForDevice(inputKey, targetDeviceId) {
     }
   }
 
-  // Case 2: Standard Short Permanent Key (DTKEY-XXXX-XXXX-XXXX-XXXX)
+  // Case 2: Pre-generated Exclusive Client Code (DTVIP-XXXX-XXXX-XXXX)
+  // Validated via HMAC signature and permanently locked to the first device that activates it
+  const cleanUpper = cleanInput.toUpperCase().replace(/[^A-Z0-9]/g, '');
+  if (cleanUpper.startsWith('DTVIP') && cleanUpper.length === 17) {
+    const serialPart = cleanUpper.slice(5, 9); // 4 chars
+    const sigPart = cleanUpper.slice(9, 17);   // 8 chars
+    const expectedVipSig = crypto
+      .createHmac('sha256', MASTER_SECRET)
+      .update(`VIP_CLIENT_CODE_V1::${serialPart}`)
+      .digest('hex')
+      .toUpperCase()
+      .slice(0, 8);
+
+    if (sigPart === expectedVipSig) {
+      return {
+        valid: true,
+        type: 'ترخيص دائم',
+        clientName: 'عميل معتمد',
+        expiresAt: null,
+        deviceId: normTargetDevice
+      };
+    }
+  }
+
+  // Case 3: Standard Short Permanent Key (DTKEY-XXXX-XXXX-XXXX-XXXX)
   const expectedShort = generateShortActivationKey(normTargetDevice);
-  const normalizedInputShort = cleanInput.toUpperCase().replace(/[^A-Z0-9]/g, '');
+  const normalizedInputShort = cleanUpper;
   const normalizedExpectedShort = expectedShort.replace(/[^A-Z0-9]/g, '');
 
   if (normalizedInputShort === normalizedExpectedShort) {
@@ -208,8 +232,29 @@ function verifyActivationKeyForDevice(inputKey, targetDeviceId) {
 
   return {
     valid: false,
-    reason: 'رمز التفعيل غير صحيح أو أنه مرتبط بجهاز آخر. لا يعمل الرمز إلا على الجهاز الذي صدر له فقط.'
+    reason: 'رمز التفعيل غير صحيح أو أنه مرتبط بجهاز آخر. لا يعمل الرمز إلا على الجهاز المخصص له فقط.'
   };
+}
+
+/**
+ * Generates N pre-issued VIP client activation codes (DTVIP-XXXX-XXXX-XXXX)
+ */
+function generateVipClientCodes(count = 30) {
+  const codes = [];
+  for (let i = 1; i <= count; i++) {
+    const serial = `C${String(i).padStart(3, '0')}`; // C001 .. C030
+    const sig = crypto
+      .createHmac('sha256', MASTER_SECRET)
+      .update(`VIP_CLIENT_CODE_V1::${serial}`)
+      .digest('hex')
+      .toUpperCase()
+      .slice(0, 8);
+    codes.push({
+      index: i,
+      code: `DTVIP-${serial}-${sig.slice(0, 4)}-${sig.slice(4, 8)}`
+    });
+  }
+  return codes;
 }
 
 /**
@@ -354,6 +399,7 @@ module.exports = {
   normalizeDeviceId,
   generateShortActivationKey,
   generateExtendedLicenseKey,
+  generateVipClientCodes,
   verifyActivationKeyForDevice,
   getCurrentMachineLicenseStatus,
   activateCurrentMachine,

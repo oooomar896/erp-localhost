@@ -380,22 +380,9 @@
               <div class="doc-editable-region" id="docEditableBody" contenteditable="false"></div>
             </div>
 
-            <!-- Bottom Half: Sign-off & Stamp -->
+            <!-- Bottom Half: Sign-off & Stamp (Matches ui ux.jpeg: Stamp on Right, HR Manager on Left) -->
             <footer class="doc-signoff-footer">
-              <!-- Right side in RTL: HR Manager Signature -->
-              <div class="doc-signature-column">
-                <div class="doc-signature-title" id="docManagerTitle" contenteditable="true">مدير الموارد البشرية</div>
-                <div class="doc-signature-line" id="docSignatureContainer">
-                  <svg width="95" height="32" viewBox="0 0 120 40" fill="none" id="defaultSignatureSvg">
-                    <path d="M15 28 C35 10, 45 32, 62 18 C75 8, 60 32, 105 14" stroke="#1d3148" stroke-width="2" stroke-linecap="round" fill="none"/>
-                    <path d="M28 32 L85 24" stroke="#1d3148" stroke-width="1.2" stroke-linecap="round"/>
-                  </svg>
-                  <img id="docUploadedSignature" style="max-height:36px; max-width:120px; display:none;" alt="التوقيع" />
-                </div>
-                <div id="docManagerNameDisplay" style="font-size:0.76rem; color:#475569; margin-top:4px;"></div>
-              </div>
-
-              <!-- Left side in RTL: Company Stamp -->
+              <!-- Right side in RTL: Company Stamp -->
               <div class="doc-stamp-column">
                 <div class="doc-stamp-label" id="docStampLabel">ختم المنشأة</div>
                 <div class="doc-stamp-frame" id="docStampFrame">
@@ -410,6 +397,19 @@
                   </div>
                   <img id="docUploadedStamp" style="max-height:62px; max-width:135px; display:none;" alt="ختم المنشأة" />
                 </div>
+              </div>
+
+              <!-- Left side in RTL: HR Manager Signature -->
+              <div class="doc-signature-column">
+                <div class="doc-signature-title" id="docManagerTitle" contenteditable="true">مدير الموارد البشرية</div>
+                <div class="doc-signature-line" id="docSignatureContainer">
+                  <svg width="95" height="32" viewBox="0 0 120 40" fill="none" id="defaultSignatureSvg">
+                    <path d="M15 28 C35 10, 45 32, 62 18 C75 8, 60 32, 105 14" stroke="#1d3148" stroke-width="2" stroke-linecap="round" fill="none"/>
+                    <path d="M28 32 L85 24" stroke="#1d3148" stroke-width="1.2" stroke-linecap="round"/>
+                  </svg>
+                  <img id="docUploadedSignature" style="max-height:36px; max-width:120px; display:none;" alt="التوقيع" />
+                </div>
+                <div id="docManagerNameDisplay" style="font-size:0.76rem; color:#475569; margin-top:4px;"></div>
               </div>
             </footer>
           </article>

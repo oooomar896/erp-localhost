@@ -51,6 +51,93 @@ const appState = {
   }
 };
 
+const STANDALONE_LICENSE_KEY = 'DARTOOL_DEVICE_LIC_V1';
+const _MS_KEY = 'DAR_TOOL_CONSULTING_HR_ERP_2026_MASTER_SECRET_KEY_#9981_SA';
+
+async function _hmacHex(secret, message) {
+  if (window.crypto && window.crypto.subtle) {
+    const enc = new TextEncoder();
+    const key = await window.crypto.subtle.importKey(
+      'raw',
+      enc.encode(secret),
+      { name: 'HMAC', hash: 'SHA-256' },
+      false,
+      ['sign']
+    );
+    const sig = await window.crypto.subtle.sign('HMAC', key, enc.encode(message));
+    return Array.from(new Uint8Array(sig))
+      .map(b => b.toString(16).padStart(2, '0'))
+      .join('')
+      .toUpperCase();
+  }
+  // Fallback deterministic hash for non-HTTPS file:// contexts on older mobile browsers
+  let h1 = 0xdeadbeef ^ secret.length, h2 = 0x41c6ce57 ^ message.length;
+  const combined = secret + '::' + message;
+  for (let i = 0; i < combined.length; i++) {
+    const ch = combined.charCodeAt(i);
+    h1 = Math.imul(h1 ^ ch, 2654435761);
+    h2 = Math.imul(h2 ^ ch, 1597334677);
+  }
+  h1 = Math.imul(h1 ^ (h1 >>> 16), 2246822507) ^ Math.imul(h2 ^ (h2 >>> 13), 3266489909);
+  h2 = Math.imul(h2 ^ (h2 >>> 16), 2246822507) ^ Math.imul(h1 ^ (h1 >>> 13), 3266489909);
+  return ((h1 >>> 0).toString(16).padStart(8, '0') + (h2 >>> 0).toString(16).padStart(8, '0')).toUpperCase();
+}
+
+async function getStandaloneMobileOrPcDeviceId() {
+  let savedHwId = localStorage.getItem('DARTOOL_HW_DEVICE_ID');
+  if (savedHwId && /^DT-[A-Z0-9]{4}-[A-Z0-9]{4}-[A-Z0-9]{4}$/.test(savedHwId)) {
+    return savedHwId;
+  }
+  const traits = [
+    navigator.platform || '',
+    navigator.language || '',
+    screen.width + 'x' + screen.height + 'x' + (screen.colorDepth || 24),
+    navigator.hardwareConcurrency || 4,
+    navigator.deviceMemory || 4,
+    Intl.DateTimeFormat().resolvedOptions().timeZone || ''
+  ].join('|');
+
+  const hash = await _hmacHex('DAR_TOOL_HWID_SALT_V1_2026', traits);
+  const c = hash.slice(0, 12);
+  savedHwId = `DT-${c.slice(0, 4)}-${c.slice(4, 8)}-${c.slice(8, 12)}`;
+  try { localStorage.setItem('DARTOOL_HW_DEVICE_ID', savedHwId); } catch (_) {}
+  return savedHwId;
+}
+
+// Pre-verified hashes of the 30 VIP client codes so they work even on file:// on mobile
+const VALID_VIP_CODES_SET = new Set([
+  'DTVIPC0015FD3FA7C', 'DTVIPC002834AE445', 'DTVIPC003E23AE59F', 'DTVIPC004D85AA562', 'DTVIPC005EFC49CA1',
+  'DTVIPC006D1F52A9D', 'DTVIPC007B053D0B7', 'DTVIPC00848528770', 'DTVIPC0099A3CA0E4', 'DTVIPC010173050AF',
+  'DTVIPC011A4DCA061', 'DTVIPC01212F2FD04', 'DTVIPC013BE099B89', 'DTVIPC014687A1030', 'DTVIPC015556D314F',
+  'DTVIPC0167266A4E4', 'DTVIPC01759E53D89', 'DTVIPC018A2B909A4', 'DTVIPC019A2299E35', 'DTVIPC020A173CC45',
+  'DTVIPC021CBCA2867', 'DTVIPC02234B48C40', 'DTVIPC023A8F5D5FA', 'DTVIPC0241CCF7CFE', 'DTVIPC02595E3BBE8',
+  'DTVIPC026C46392E6', 'DTVIPC027D4524C2D', 'DTVIPC02822FDDC48', 'DTVIPC029DF116533', 'DTVIPC030AA47DE5C'
+]);
+
+async function verifyKeyClientSide(inputKey, deviceId) {
+  const cleanUpper = (inputKey || '').toUpperCase().replace(/[^A-Z0-9]/g, '');
+  if (!cleanUpper) return { valid: false, reason: 'يرجى إدخال رمز التفعيل.' };
+
+  // 1. Check VIP Client Code (DTVIP-XXXX-XXXX-XXXX)
+  if (VALID_VIP_CODES_SET.has(cleanUpper)) {
+    return { valid: true, type: 'ترخيص دائم', clientName: 'عميل معتمد', deviceId };
+  }
+
+  // 2. Check Device-Specific Key (DTKEY-XXXX-XXXX-XXXX-XXXX)
+  if (window.crypto && window.crypto.subtle) {
+    const hmac = await _hmacHex(_MS_KEY, `PERMANENT_V1::${deviceId}`);
+    const expected = 'DTKEY' + hmac.slice(0, 16);
+    if (cleanUpper === expected) {
+      return { valid: true, type: 'ترخيص دائم', clientName: 'عميل معتمد', deviceId };
+    }
+  }
+
+  return {
+    valid: false,
+    reason: 'رمز التفعيل غير صحيح أو أنه مرتبط بجهاز آخر. لا يعمل الرمز إلا على الجهاز المخصص له فقط.'
+  };
+}
+
 // =========================================================
 // 1. INITIALIZATION & DEVICE LICENSE VERIFICATION
 // =========================================================
@@ -60,12 +147,30 @@ window.addEventListener('DOMContentLoaded', async () => {
 
 async function checkDeviceLicense() {
   try {
-    let status;
+    let status = null;
     if (window.darToolDesktop && window.darToolDesktop.getLicenseStatus) {
       status = await window.darToolDesktop.getLicenseStatus();
-    } else {
-      const res = await fetch('/api/license/status');
-      status = await res.json();
+    } else if (location.protocol.startsWith('http')) {
+      try {
+        const res = await fetch('/api/license/status');
+        if (res.ok) status = await res.json();
+      } catch (_) {}
+    }
+
+    // Standalone Mobile / PC Fallback (when running as single encrypted file without server)
+    if (!status) {
+      const devId = await getStandaloneMobileOrPcDeviceId();
+      let savedLic = null;
+      try { savedLic = JSON.parse(localStorage.getItem(STANDALONE_LICENSE_KEY) || 'null'); } catch (_) {}
+      if (savedLic && savedLic.deviceId === devId && savedLic.key) {
+        const check = await verifyKeyClientSide(savedLic.key, devId);
+        if (check.valid) {
+          status = { activated: true, deviceId: devId, type: check.type, clientName: savedLic.clientName || 'العميل' };
+        }
+      }
+      if (!status) {
+        status = { activated: false, deviceId: devId };
+      }
     }
 
     appState.license = status;
@@ -95,16 +200,31 @@ async function submitLicenseActivation() {
   }
 
   try {
-    let result;
+    let result = null;
     if (window.darToolDesktop && window.darToolDesktop.activateLicense) {
       result = await window.darToolDesktop.activateLicense(keyInput, clientInput);
-    } else {
-      const res = await fetch('/api/license/activate', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ activationKey: keyInput, clientName: clientInput })
-      });
-      result = await res.json();
+    } else if (location.protocol.startsWith('http')) {
+      try {
+        const res = await fetch('/api/license/activate', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ activationKey: keyInput, clientName: clientInput })
+        });
+        result = await res.json();
+      } catch (_) {}
+    }
+
+    // Standalone Mobile / PC Fallback
+    if (!result) {
+      const devId = await getStandaloneMobileOrPcDeviceId();
+      const check = await verifyKeyClientSide(keyInput, devId);
+      if (check.valid) {
+        const record = { deviceId: devId, key: keyInput, clientName: clientInput || 'العميل', activatedAt: new Date().toISOString() };
+        try { localStorage.setItem(STANDALONE_LICENSE_KEY, JSON.stringify(record)); } catch (_) {}
+        result = { success: true, deviceId: devId, type: check.type, clientName: record.clientName };
+      } else {
+        result = { success: false, message: check.reason };
+      }
     }
 
     if (!result.success) {
@@ -832,7 +952,8 @@ function applyLanguageTranslations() {
 
   document.getElementById('centerTitle').textContent = isEn ? 'Select Appropriate Form' : 'اختر النموذج المناسب';
   document.getElementById('btnBlankLetterText').textContent = isEn ? 'New Blank Letter' : 'إنشاء خطاب جديد';
-  document.getElementById('btnAddTemplateText').textContent = isEn ? 'Custom Form' : 'نموذج مخصص';
+  const addTplEl = document.getElementById('btnAddTemplateText');
+  if (addTplEl) addTplEl.textContent = isEn ? 'Custom Form' : 'نموذج مخصص';
   document.getElementById('formSearchInput').placeholder = isEn ? 'Search for a form...' : 'ابحث عن نموذج ...';
 
   document.getElementById('formsListTitle').textContent = isEn ? 'Forms List' : 'قائمة النماذج';

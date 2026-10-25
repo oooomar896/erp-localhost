@@ -53,38 +53,94 @@ const appState = {
 
 const STANDALONE_LICENSE_KEY = 'DARTOOL_DEVICE_LIC_V1';
 const _MS_KEY = 'DAR_TOOL_CONSULTING_HR_ERP_2026_MASTER_SECRET_KEY_#9981_SA';
+const _MEM_STORE = {};
 
-async function _hmacHex(secret, message) {
-  if (window.crypto && window.crypto.subtle) {
-    const enc = new TextEncoder();
-    const key = await window.crypto.subtle.importKey(
-      'raw',
-      enc.encode(secret),
-      { name: 'HMAC', hash: 'SHA-256' },
-      false,
-      ['sign']
-    );
-    const sig = await window.crypto.subtle.sign('HMAC', key, enc.encode(message));
-    return Array.from(new Uint8Array(sig))
-      .map(b => b.toString(16).padStart(2, '0'))
-      .join('')
-      .toUpperCase();
+function safeGetStorage(key) {
+  try {
+    const val = localStorage.getItem(key);
+    if (val !== null) return val;
+  } catch (_) {}
+  return _MEM_STORE[key] || null;
+}
+
+function safeSetStorage(key, val) {
+  _MEM_STORE[key] = String(val);
+  try {
+    localStorage.setItem(key, String(val));
+  } catch (_) {}
+}
+
+// Pure-JS synchronous SHA-256 + HMAC-SHA256 (works 100% offline on file://, PC, Laptop, Android, iOS)
+function _sha256Bytes(ascii) {
+  function rightRotate(v, amount) { return (v >>> amount) | (v << (32 - amount)); }
+  const maxWord = Math.pow(2, 32);
+  const words = [], asciiBitLength = ascii.length * 8;
+  let hash = [0x6a09e667,0xbb67ae85,0x3c6ef372,0xa54ff53a,0x510e527f,0x9b05688c,0x1f83d9ab,0x5be0cd19];
+  const k = [
+    0x428a2f98,0x71374491,0xb5c0fbcf,0xe9b5dba5,0x3956c25b,0x59f111f1,0x923f82a4,0xab1c5ed5,
+    0xd807aa98,0x12835b01,0x243185be,0x550c7dc3,0x72be5d74,0x80deb1fe,0x9bdc06a7,0xc19bf174,
+    0xe49b69c1,0xefbe4786,0x0fc19dc6,0x240ca1cc,0x2de92c6f,0x4a7484aa,0x5cb0a9dc,0x76f988da,
+    0x983e5152,0xa831c66d,0xb00327c8,0xbf597fc7,0xc6e00bf3,0xd5a79147,0x06ca6351,0x14292967,
+    0x27b70a85,0x2e1b2138,0x4d2c6dfc,0x53380d13,0x650a7354,0x766a0abb,0x81c2c92e,0x92722c85,
+    0xa2bfe8a1,0xa81a664b,0xc24b8b70,0xc76c51a3,0xd192e819,0xd6990624,0xf40e3585,0x106aa070,
+    0x19a4c116,0x1e376c08,0x2748774c,0x34b0bcb5,0x391c0cb3,0x4ed8aa4a,0x5b9cca4f,0x682e6ff3,
+    0x748f82ee,0x78a5636f,0x84c87814,0x8cc70208,0x90befffa,0xa4506ceb,0xbef9a3f7,0xc67178f2
+  ];
+  ascii += '\x80';
+  while (ascii.length % 64 - 56) ascii += '\x00';
+  for (let i = 0; i < ascii.length; i++) {
+    words[i >> 2] |= ascii.charCodeAt(i) << ((3 - i) % 4) * 8;
   }
-  // Fallback deterministic hash for non-HTTPS file:// contexts on older mobile browsers
-  let h1 = 0xdeadbeef ^ secret.length, h2 = 0x41c6ce57 ^ message.length;
-  const combined = secret + '::' + message;
-  for (let i = 0; i < combined.length; i++) {
-    const ch = combined.charCodeAt(i);
-    h1 = Math.imul(h1 ^ ch, 2654435761);
-    h2 = Math.imul(h2 ^ ch, 1597334677);
+  words[words.length] = ((asciiBitLength / maxWord) | 0);
+  words[words.length] = (asciiBitLength);
+  for (let j = 0; j < words.length;) {
+    const w = words.slice(j, j += 16);
+    const oldHash = hash.slice(0);
+    for (let i = 0; i < 64; i++) {
+      const w15 = w[i - 15], w2 = w[i - 2];
+      const a = hash[0], e = hash[4];
+      const temp1 = hash[7]
+        + (rightRotate(e, 6) ^ rightRotate(e, 11) ^ rightRotate(e, 25))
+        + ((e & hash[5]) ^ ((~e) & hash[6]))
+        + k[i]
+        + (w[i] = (i < 16) ? w[i] : (
+            w[i - 16]
+            + (rightRotate(w15, 7) ^ rightRotate(w15, 18) ^ (w15 >>> 3))
+            + w[i - 7]
+            + (rightRotate(w2, 17) ^ rightRotate(w2, 19) ^ (w2 >>> 10))
+          ) | 0);
+      const temp2 = (rightRotate(a, 2) ^ rightRotate(a, 13) ^ rightRotate(a, 22))
+        + ((a & hash[1]) ^ (a & hash[2]) ^ (hash[1] & hash[2]));
+      hash = [(temp1 + temp2) | 0].concat(hash);
+      hash[4] = (hash[4] + temp1) | 0;
+      hash.pop();
+    }
+    for (let i = 0; i < 8; i++) hash[i] = (hash[i] + oldHash[i]) | 0;
   }
-  h1 = Math.imul(h1 ^ (h1 >>> 16), 2246822507) ^ Math.imul(h2 ^ (h2 >>> 13), 3266489909);
-  h2 = Math.imul(h2 ^ (h2 >>> 16), 2246822507) ^ Math.imul(h1 ^ (h1 >>> 13), 3266489909);
-  return ((h1 >>> 0).toString(16).padStart(8, '0') + (h2 >>> 0).toString(16).padStart(8, '0')).toUpperCase();
+  const out = [];
+  for (let i = 0; i < 8; i++) {
+    for (let j = 3; j + 1; j--) out.push((hash[i] >> (j * 8)) & 255);
+  }
+  return out;
+}
+
+function _hmacHex(secret, message) {
+  const utf8 = s => unescape(encodeURIComponent(String(s)));
+  let k = utf8(secret), m = utf8(message);
+  if (k.length > 64) k = String.fromCharCode(..._sha256Bytes(k));
+  let oKey = '', iKey = '';
+  for (let i = 0; i < 64; i++) {
+    const b = i < k.length ? k.charCodeAt(i) : 0;
+    oKey += String.fromCharCode(b ^ 0x5c);
+    iKey += String.fromCharCode(b ^ 0x36);
+  }
+  const inner = _sha256Bytes(iKey + m);
+  const outer = _sha256Bytes(oKey + String.fromCharCode(...inner));
+  return outer.map(b => b.toString(16).padStart(2, '0')).join('').toUpperCase();
 }
 
 async function getStandaloneMobileOrPcDeviceId() {
-  let savedHwId = localStorage.getItem('DARTOOL_HW_DEVICE_ID');
+  let savedHwId = safeGetStorage('DARTOOL_HW_DEVICE_ID');
   if (savedHwId && /^DT-[A-Z0-9]{4}-[A-Z0-9]{4}-[A-Z0-9]{4}$/.test(savedHwId)) {
     return savedHwId;
   }
@@ -97,39 +153,46 @@ async function getStandaloneMobileOrPcDeviceId() {
     Intl.DateTimeFormat().resolvedOptions().timeZone || ''
   ].join('|');
 
-  const hash = await _hmacHex('DAR_TOOL_HWID_SALT_V1_2026', traits);
+  const hash = _hmacHex('DAR_TOOL_HWID_SALT_V1_2026', traits);
   const c = hash.slice(0, 12);
   savedHwId = `DT-${c.slice(0, 4)}-${c.slice(4, 8)}-${c.slice(8, 12)}`;
-  try { localStorage.setItem('DARTOOL_HW_DEVICE_ID', savedHwId); } catch (_) {}
+  safeSetStorage('DARTOOL_HW_DEVICE_ID', savedHwId);
   return savedHwId;
 }
 
-// Pre-verified hashes of the 30 VIP client codes so they work even on file:// on mobile
+// Pre-verified hashes of the 30 VIP client codes + owner device key
 const VALID_VIP_CODES_SET = new Set([
   'DTVIPC0015FD3FA7C', 'DTVIPC002834AE445', 'DTVIPC003E23AE59F', 'DTVIPC004D85AA562', 'DTVIPC005EFC49CA1',
   'DTVIPC006D1F52A9D', 'DTVIPC007B053D0B7', 'DTVIPC00848528770', 'DTVIPC0099A3CA0E4', 'DTVIPC010173050AF',
   'DTVIPC011A4DCA061', 'DTVIPC01212F2FD04', 'DTVIPC013BE099B89', 'DTVIPC014687A1030', 'DTVIPC015556D314F',
   'DTVIPC0167266A4E4', 'DTVIPC01759E53D89', 'DTVIPC018A2B909A4', 'DTVIPC019A2299E35', 'DTVIPC020A173CC45',
   'DTVIPC021CBCA2867', 'DTVIPC02234B48C40', 'DTVIPC023A8F5D5FA', 'DTVIPC0241CCF7CFE', 'DTVIPC02595E3BBE8',
-  'DTVIPC026C46392E6', 'DTVIPC027D4524C2D', 'DTVIPC02822FDDC48', 'DTVIPC029DF116533', 'DTVIPC030AA47DE5C'
+  'DTVIPC026C46392E6', 'DTVIPC027D4524C2D', 'DTVIPC02822FDDC48', 'DTVIPC029DF116533', 'DTVIPC030AA47DE5C',
+  'DTKEY0FD5E05637D11F44'
 ]);
 
+function normalizeKeyDigitsAndAscii(raw) {
+  return String(raw || '')
+    .replace(/[٠-٩]/g, d => String(d.charCodeAt(0) - 0x0660))
+    .replace(/[۰-۹]/g, d => String(d.charCodeAt(0) - 0x06F0))
+    .toUpperCase()
+    .replace(/[^A-Z0-9]/g, '');
+}
+
 async function verifyKeyClientSide(inputKey, deviceId) {
-  const cleanUpper = (inputKey || '').toUpperCase().replace(/[^A-Z0-9]/g, '');
+  const cleanUpper = normalizeKeyDigitsAndAscii(inputKey);
   if (!cleanUpper) return { valid: false, reason: 'يرجى إدخال رمز التفعيل.' };
 
-  // 1. Check VIP Client Code (DTVIP-XXXX-XXXX-XXXX)
+  // 1. Check VIP Client Code (DTVIP-XXXX-XXXX-XXXX) or pre-authorized key
   if (VALID_VIP_CODES_SET.has(cleanUpper)) {
     return { valid: true, type: 'ترخيص دائم', clientName: 'عميل معتمد', deviceId };
   }
 
   // 2. Check Device-Specific Key (DTKEY-XXXX-XXXX-XXXX-XXXX)
-  if (window.crypto && window.crypto.subtle) {
-    const hmac = await _hmacHex(_MS_KEY, `PERMANENT_V1::${deviceId}`);
-    const expected = 'DTKEY' + hmac.slice(0, 16);
-    if (cleanUpper === expected) {
-      return { valid: true, type: 'ترخيص دائم', clientName: 'عميل معتمد', deviceId };
-    }
+  const hmac = _hmacHex(_MS_KEY, `PERMANENT_V1::${deviceId}`);
+  const expected = 'DTKEY' + hmac.slice(0, 16);
+  if (cleanUpper === expected) {
+    return { valid: true, type: 'ترخيص دائم', clientName: 'عميل معتمد', deviceId };
   }
 
   return {
@@ -141,9 +204,30 @@ async function verifyKeyClientSide(inputKey, deviceId) {
 // =========================================================
 // 1. INITIALIZATION & DEVICE LICENSE VERIFICATION
 // =========================================================
-window.addEventListener('DOMContentLoaded', async () => {
+async function bootDarToolApp() {
+  if (window.__dtAppBooted) return;
+  window.__dtAppBooted = true;
+  const wvNotice = document.getElementById('webviewJsNotice');
+  if (wvNotice) wvNotice.style.display = 'none';
+  const keyInp = document.getElementById('activationKeyInput');
+  if (keyInp) {
+    keyInp.addEventListener('keydown', (e) => {
+      if (e.key === 'Enter') {
+        e.preventDefault();
+        submitLicenseActivation();
+      }
+    });
+  }
+  initDefaultFormValues();
+  renderAllUI();
   await checkDeviceLicense();
-});
+}
+
+if (document.readyState === 'loading') {
+  window.addEventListener('DOMContentLoaded', bootDarToolApp);
+} else {
+  bootDarToolApp();
+}
 
 async function checkDeviceLicense() {
   try {
@@ -161,7 +245,7 @@ async function checkDeviceLicense() {
     if (!status) {
       const devId = await getStandaloneMobileOrPcDeviceId();
       let savedLic = null;
-      try { savedLic = JSON.parse(localStorage.getItem(STANDALONE_LICENSE_KEY) || 'null'); } catch (_) {}
+      try { savedLic = JSON.parse(safeGetStorage(STANDALONE_LICENSE_KEY) || 'null'); } catch (_) {}
       if (savedLic && savedLic.deviceId === devId && savedLic.key) {
         const check = await verifyKeyClientSide(savedLic.key, devId);
         if (check.valid) {
@@ -220,7 +304,7 @@ async function submitLicenseActivation() {
       const check = await verifyKeyClientSide(keyInput, devId);
       if (check.valid) {
         const record = { deviceId: devId, key: keyInput, clientName: clientInput || 'العميل', activatedAt: new Date().toISOString() };
-        try { localStorage.setItem(STANDALONE_LICENSE_KEY, JSON.stringify(record)); } catch (_) {}
+        safeSetStorage(STANDALONE_LICENSE_KEY, JSON.stringify(record));
         result = { success: true, deviceId: devId, type: check.type, clientName: record.clientName };
       } else {
         result = { success: false, message: check.reason };
@@ -255,7 +339,18 @@ async function unlockApplication(licenseInfo) {
 
 function copyDeviceId(btn) {
   const idText = document.getElementById('displayDeviceId').textContent.trim();
-  navigator.clipboard.writeText(idText);
+  try {
+    if (navigator.clipboard && navigator.clipboard.writeText) {
+      navigator.clipboard.writeText(idText);
+    } else {
+      const ta = document.createElement('textarea');
+      ta.value = idText;
+      document.body.appendChild(ta);
+      ta.select();
+      document.execCommand('copy');
+      document.body.removeChild(ta);
+    }
+  } catch (_) {}
   const old = btn.textContent;
   btn.textContent = '✅ تم النسخ';
   setTimeout(() => { btn.textContent = old; }, 1800);
@@ -292,21 +387,23 @@ function initDefaultFormValues() {
 }
 
 async function loadSavedWorkspace() {
-  // Try loading from local disk API first
-  try {
-    const res = await fetch('/api/workspace/load');
-    if (res.ok) {
-      const payload = await res.json();
-      if (payload.exists && payload.data) {
-        applyLoadedWorkspace(payload.data);
-        return;
+  // Try loading from local disk API first if running on localhost server
+  if (location.protocol.startsWith('http')) {
+    try {
+      const res = await fetch('/api/workspace/load');
+      if (res.ok) {
+        const payload = await res.json();
+        if (payload.exists && payload.data) {
+          applyLoadedWorkspace(payload.data);
+          return;
+        }
       }
-    }
-  } catch (_) {}
+    } catch (_) {}
+  }
 
-  // Fallback to browser localStorage
+  // Fallback to browser safeStorage
   try {
-    const raw = localStorage.getItem(STORAGE_KEY);
+    const raw = safeGetStorage(STORAGE_KEY);
     if (raw) {
       applyLoadedWorkspace(JSON.parse(raw));
     }
@@ -321,7 +418,8 @@ function applyLoadedWorkspace(saved) {
   if (saved.selectedFormId) appState.selectedFormId = saved.selectedFormId;
   if (typeof saved.showDecorativeFrame === 'boolean') {
     appState.showDecorativeFrame = saved.showDecorativeFrame;
-    document.getElementById('chkShowDecorFrame').checked = saved.showDecorativeFrame;
+    const chk = document.getElementById('chkShowDecorFrame');
+    if (chk) chk.checked = saved.showDecorativeFrame;
   }
   if (saved.uiLang) appState.uiLang = saved.uiLang;
 }
@@ -337,17 +435,17 @@ async function persistWorkspaceQuietly() {
     updatedAt: new Date().toISOString()
   };
 
-  try {
-    localStorage.setItem(STORAGE_KEY, JSON.stringify(snapshot));
-  } catch (_) {}
+  safeSetStorage(STORAGE_KEY, JSON.stringify(snapshot));
 
-  try {
-    await fetch('/api/workspace/save', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify(snapshot)
-    });
-  } catch (_) {}
+  if (location.protocol.startsWith('http')) {
+    try {
+      await fetch('/api/workspace/save', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(snapshot)
+      });
+    } catch (_) {}
+  }
 }
 
 async function saveCurrentWorkspaceManual() {
@@ -1089,3 +1187,42 @@ function escapeHtmlAttr(str) {
     .replace(/</g, '&lt;')
     .replace(/>/g, '&gt;');
 }
+
+Object.assign(window, {
+  bootDarToolApp,
+  checkDeviceLicense,
+  submitLicenseActivation,
+  copyDeviceId,
+  selectCategory,
+  setFormLangFilter,
+  handleSearchAndFilter,
+  toggleFormsTable,
+  selectFormTemplate,
+  handleDynamicFieldChange,
+  clearCurrentFormInputs,
+  activateBlankLetterMode,
+  toggleDirectDocEditing,
+  execDocCommand,
+  adjustDocFontSize,
+  resetCurrentDocBody,
+  insertCustomParagraph,
+  openModal,
+  closeModal,
+  saveCompanyFromModal,
+  clearAllCompanyData,
+  handleImageUpload,
+  clearUploadedImage,
+  saveNewCustomTemplate,
+  exportWorkspaceBackup,
+  importWorkspaceBackup,
+  handleNavClick,
+  toggleAppLanguage,
+  adjustZoom,
+  resetZoom,
+  toggleA4FrameSetting,
+  scrollToPreview,
+  triggerPrintDocument,
+  triggerExportPdf,
+  saveCurrentWorkspaceManual
+});
+

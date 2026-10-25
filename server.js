@@ -143,6 +143,20 @@ const server = http.createServer(async (req, res) => {
   }
 });
 
+server.on('error', (err) => {
+  if (err && err.code === 'EADDRINUSE') {
+    const url = `http://127.0.0.1:${PORT}`;
+    console.log(`✅ البرنامج يعمل مسبقاً على الرابط: ${url}`);
+    if (!process.argv.includes('--no-open') && process.platform === 'win32') {
+      exec(`start "" "${url}"`, () => process.exit(0));
+    } else {
+      process.exit(0);
+    }
+  } else {
+    console.error('Server error:', err);
+  }
+});
+
 // Listen strictly on 127.0.0.1 (Localhost only - cannot be shared over network)
 server.listen(PORT, '127.0.0.1', () => {
   const url = `http://127.0.0.1:${PORT}`;
@@ -155,13 +169,8 @@ server.listen(PORT, '127.0.0.1', () => {
   console.log(`- حالة الترخيص           : ${lic.activated ? 'مفعّل (' + lic.type + ')' : 'غير مفعّل (بانتظار إدخال رمز التفعيل)'}`);
   console.log('==============================================================');
 
-  // Open as standalone desktop app window on Windows unless --no-open is passed
+  // Open in default browser on Windows unless --no-open is passed
   if (!process.argv.includes('--no-open') && process.platform === 'win32') {
-    // Try Microsoft Edge App Mode first for native desktop window experience, fallback to default browser
-    exec(`start msedge --app="${url}" --window-size=1440,920`, (err) => {
-      if (err) {
-        exec(`start "" "${url}"`);
-      }
-    });
+    exec(`start "" "${url}"`);
   }
 });

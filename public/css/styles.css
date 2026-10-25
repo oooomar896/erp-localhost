@@ -441,7 +441,7 @@ body {
   display: flex;
   flex-direction: column;
   gap: 10px;
-  text-align: left;
+  text-align: right;
 }
 
 .company-info-item {
@@ -456,7 +456,7 @@ body {
 .company-info-label {
   font-size: 0.78rem;
   color: var(--text-muted);
-  text-align: left;
+  text-align: right;
   margin-bottom: 2px;
 }
 
@@ -464,7 +464,7 @@ body {
   font-size: 0.84rem;
   font-weight: 700;
   color: var(--text-main);
-  text-align: left;
+  text-align: right;
   word-break: break-word;
 }
 

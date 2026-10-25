@@ -6,7 +6,8 @@
   "scripts": {
     "start": "node server.js",
     "electron": "electron .",
-    "keygen": "node admin-keygen/cli-keygen.js"
+    "keygen": "node admin-keygen/cli-keygen.js",
+    "build-client": "node scripts/build-client-package.js"
   },
   "author": "Dar Tool Consulting - دار تول للاستشارات",
   "license": "PROPRIETARY"

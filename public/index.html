@@ -263,7 +263,7 @@
           <table class="forms-table">
             <thead>
               <tr>
-                <th style="width:42px; text-align:right;">#</th>
+                <th style="width:48px; text-align:right;"># <span style="font-size:0.7rem; color:#94a3b8;">⇅</span></th>
                 <th style="text-align:right;" id="thFormName">اسم النموذج</th>
                 <th style="text-align:center;" id="thCategory">الفئة</th>
                 <th style="width:40px; text-align:center;"></th>
@@ -277,7 +277,7 @@
         <div class="fields-editor-box" id="fieldsEditorBox">
           <div class="fields-editor-title">
             <span id="fieldsEditorHeading">تعديل بيانات النموذج (اختياري)</span>
-            <button type="button" class="btn-toggle-table" onclick="clearCurrentFormInputs()">تفريغ الحقول</button>
+            <button type="button" class="btn-toggle-table" id="btnResetFields" onclick="clearCurrentFormInputs()">إعادة ضبط الحقول</button>
           </div>
           <div class="fields-grid" id="dynamicFieldsGrid"></div>
         </div>
@@ -316,6 +316,18 @@
               📄 <span>PDF</span>
             </button>
           </div>
+        </div>
+
+        <!-- Rich Text Formatting Sub-bar (Appears when Direct Editing is active) -->
+        <div class="rich-format-bar" id="richFormatBar" style="display:none;">
+          <button type="button" class="fmt-btn" onclick="execDocCommand('bold')" title="عريض (Bold)"><strong>B</strong></button>
+          <button type="button" class="fmt-btn" onclick="execDocCommand('underline')" title="تحته خط (Underline)"><u>U</u></button>
+          <button type="button" class="fmt-btn" onclick="execDocCommand('justifyRight')" title="محاذاة لليمين">⇥ يمين</button>
+          <button type="button" class="fmt-btn" onclick="execDocCommand('justifyCenter')" title="توسيط">↔ وسط</button>
+          <button type="button" class="fmt-btn" onclick="execDocCommand('justifyLeft')" title="محاذاة لليسار">⇤ يسار</button>
+          <button type="button" class="fmt-btn" onclick="adjustDocFontSize(1)" title="تكبير الخط">A+</button>
+          <button type="button" class="fmt-btn" onclick="adjustDocFontSize(-1)" title="تصغير الخط">A−</button>
+          <button type="button" class="fmt-btn" onclick="resetCurrentDocBody()" title="استعادة النص الافتراضي للنموذج" style="margin-right:auto; color:#b91c1c;">↺ استعادة النص الأصلي</button>
         </div>
 
         <!-- A4 Document Sheet Container -->

@@ -703,13 +703,16 @@ function clearCurrentFormInputs() {
   }
   const tpl = getAllTemplates().find(t => t.id === appState.selectedFormId);
   if (!tpl) return;
+  const current = appState.formValuesById[tpl.id] || {};
+  const isAllEmpty = (tpl.fields || []).every(f => !current[f.key]);
+
   appState.formValuesById[tpl.id] = {};
   (tpl.fields || []).forEach(f => {
-    appState.formValuesById[tpl.id][f.key] = '';
+    appState.formValuesById[tpl.id][f.key] = isAllEmpty ? (f.defaultValue || '') : '';
   });
   renderDynamicFieldsEditor();
   renderLiveDocumentPreview();
-  showToast('تم تفريغ حقول النموذج الحالي');
+  showToast(isAllEmpty ? 'تمت استعادة البيانات الافتراضية للنموذج' : 'تم تفريغ حقول النموذج (اضغط مرة أخرى لاستعادة الافتراضي)');
 }
 
 function activateBlankLetterMode() {
@@ -726,7 +729,7 @@ function toggleDirectDocEditing() {
   enableDirectDocEditing(!appState.isDirectEditing);
   if (appState.isDirectEditing) {
     document.getElementById('docEditableBody').focus();
-    showToast('وضع التحرير المباشر مفعّل: يمكنك تعديل أي نص داخل الخطاب');
+    showToast('وضع التحرير المباشر مفعّل: يمكنك تعديل وتنسيق أي نص داخل الخطاب');
   }
 }
 
@@ -734,14 +737,38 @@ function enableDirectDocEditing(enable) {
   appState.isDirectEditing = enable;
   const bodyEl = document.getElementById('docEditableBody');
   const btn = document.getElementById('btnToggleEditDoc');
+  const fmtBar = document.getElementById('richFormatBar');
   bodyEl.contentEditable = enable ? 'true' : 'false';
   if (enable) {
     bodyEl.classList.add('editing-active');
     btn.classList.add('active');
+    if (fmtBar) fmtBar.style.display = 'flex';
   } else {
     bodyEl.classList.remove('editing-active');
     btn.classList.remove('active');
+    if (fmtBar) fmtBar.style.display = 'none';
   }
+}
+
+function execDocCommand(cmd) {
+  enableDirectDocEditing(true);
+  document.execCommand(cmd, false, null);
+  document.getElementById('docEditableBody').focus();
+}
+
+let currentDocFontScale = 0.92;
+function adjustDocFontSize(dir) {
+  currentDocFontScale = Math.min(1.25, Math.max(0.74, +(currentDocFontScale + dir * 0.05).toFixed(2)));
+  const bodyEl = document.getElementById('docEditableBody');
+  if (bodyEl) bodyEl.style.fontSize = `${currentDocFontScale}rem`;
+}
+
+function resetCurrentDocBody() {
+  currentDocFontScale = 0.92;
+  const bodyEl = document.getElementById('docEditableBody');
+  if (bodyEl) bodyEl.style.fontSize = '';
+  renderLiveDocumentPreview();
+  showToast('تمت استعادة النص الأصلي للنموذج');
 }
 
 function insertCustomParagraph() {
@@ -948,6 +975,11 @@ function applyLanguageTranslations() {
   document.getElementById('navHelpText').textContent = isEn ? 'Help' : 'مساعدة';
 
   document.getElementById('sideCompanyTitle').textContent = isEn ? 'Company Profile' : 'بيانات المنشأة';
+  document.getElementById('lblSideCompName').textContent = isEn ? 'Company Name' : 'اسم المنشأة';
+  document.getElementById('lblSideCr').textContent = isEn ? 'Commercial Reg.' : 'السجل التجاري';
+  document.getElementById('lblSidePhone').textContent = isEn ? 'Phone' : 'الهاتف';
+  document.getElementById('lblSideEmail').textContent = isEn ? 'Email' : 'البريد الإلكتروني';
+  document.getElementById('lblSidePostal').textContent = isEn ? 'Postal Code' : 'الرمز البريدي';
   document.getElementById('btnEditCompanyText').textContent = isEn ? 'Edit Profile' : 'تعديل البيانات';
 
   document.getElementById('centerTitle').textContent = isEn ? 'Select Appropriate Form' : 'اختر النموذج المناسب';
@@ -960,6 +992,8 @@ function applyLanguageTranslations() {
   document.getElementById('thFormName').textContent = isEn ? 'Form Name' : 'اسم النموذج';
   document.getElementById('thCategory').textContent = isEn ? 'Category' : 'الفئة';
   document.getElementById('fieldsEditorHeading').textContent = isEn ? 'Edit Form Details (Optional)' : 'تعديل بيانات النموذج (اختياري)';
+  const resetBtn = document.getElementById('btnResetFields');
+  if (resetBtn) resetBtn.textContent = isEn ? 'Reset Fields' : 'إعادة ضبط الحقول';
 
   document.getElementById('btnPrintText').textContent = isEn ? 'Print' : 'طباعة';
   document.getElementById('btnPreviewText').textContent = isEn ? 'Preview' : 'معاينة';
@@ -969,6 +1003,7 @@ function applyLanguageTranslations() {
   document.getElementById('lblToolbarEdit').textContent = isEn ? 'Edit' : 'تعديل';
   document.getElementById('lblToolbarAddText').textContent = isEn ? 'Add Text' : 'إضافة نص';
   document.getElementById('lblToolbarSave').textContent = isEn ? 'Save' : 'حفظ';
+  document.getElementById('docStampLabel').textContent = isEn ? 'Company Stamp' : 'ختم المنشأة';
 }
 
 function adjustZoom(delta) {
@@ -1000,15 +1035,25 @@ function scrollToPreview() {
   }
 }
 
+function getSuggestedDocumentFilename() {
+  const heading = document.getElementById('docMainHeading').textContent.trim() || 'مستند-الموارد-البشرية';
+  const vals = appState.formValuesById[appState.selectedFormId] || {};
+  const emp = vals.employeeName ? ` - ${vals.employeeName.trim()}` : '';
+  return `${heading}${emp}`.replace(/[\\/:*?"<>|]/g, '-');
+}
+
 function triggerPrintDocument() {
   enableDirectDocEditing(false);
+  const oldTitle = document.title;
+  document.title = getSuggestedDocumentFilename();
   window.print();
+  setTimeout(() => { document.title = oldTitle; }, 1000);
 }
 
 async function triggerExportPdf() {
   enableDirectDocEditing(false);
-  const heading = document.getElementById('docMainHeading').textContent.trim() || 'مستند-الموارد-البشرية';
-  const safeName = `${heading.replace(/[\\/:*?"<>|]/g, '-')}.pdf`;
+  const baseName = getSuggestedDocumentFilename();
+  const safeName = `${baseName}.pdf`;
 
   if (window.darToolDesktop && window.darToolDesktop.exportPdfNative) {
     const res = await window.darToolDesktop.exportPdfNative(safeName);
@@ -1018,9 +1063,12 @@ async function triggerExportPdf() {
     return;
   }
 
+  const oldTitle = document.title;
+  document.title = baseName;
   showToast('📄 اختر "Save as PDF / حفظ بتنسيق PDF" من نافذة الطباعة');
   setTimeout(() => {
     window.print();
+    setTimeout(() => { document.title = oldTitle; }, 1000);
   }, 250);
 }
 

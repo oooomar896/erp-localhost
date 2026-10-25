@@ -790,6 +790,9 @@ tr.selected .radio-circle::after {
   display: grid;
   grid-template-columns: 1fr 1fr;
   gap: 10px 12px;
+  max-height: 158px;
+  overflow-y: auto;
+  padding-left: 2px;
 }
 
 .field-item {
@@ -899,8 +902,10 @@ tr.selected .radio-circle::after {
   display: flex;
   align-items: center;
   justify-content: space-between;
-  margin-bottom: 12px;
+  margin-bottom: 10px;
   direction: rtl;
+  flex-wrap: wrap;
+  gap: 8px;
 }
 
 .preview-card-title {
@@ -913,6 +918,36 @@ tr.selected .radio-circle::after {
   display: flex;
   align-items: center;
   gap: 6px;
+  flex-wrap: wrap;
+}
+
+.rich-format-bar {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  flex-wrap: wrap;
+  background: #f8fafc;
+  border: 1px solid var(--border-color);
+  border-radius: 8px;
+  padding: 6px 10px;
+  margin-bottom: 10px;
+  direction: rtl;
+}
+
+.fmt-btn {
+  background: #ffffff;
+  border: 1px solid var(--border-color);
+  border-radius: 5px;
+  padding: 3px 8px;
+  font-size: 0.75rem;
+  font-weight: 700;
+  color: var(--navy-dark);
+  cursor: pointer;
+}
+
+.fmt-btn:hover {
+  background: var(--beige-active);
+  border-color: var(--gold-main);
 }
 
 .toolbar-btn {
@@ -1403,8 +1438,15 @@ tr.selected .radio-circle::after {
 }
 
 @media (max-width: 780px) {
+  .app-header {
+    height: auto;
+    padding: 10px 14px;
+    flex-wrap: wrap;
+    gap: 10px;
+  }
   .app-workspace {
     grid-template-columns: 1fr;
+    padding: 10px;
   }
   .categories-grid {
     grid-template-columns: repeat(2, 1fr);
@@ -1412,6 +1454,18 @@ tr.selected .radio-circle::after {
   .fields-grid,
   .modal-grid {
     grid-template-columns: 1fr;
+    max-height: none;
+  }
+  .a4-sheet {
+    padding: 20px 16px;
+    min-height: 520px;
+  }
+  .app-footer {
+    height: auto;
+    padding: 10px 14px;
+    flex-direction: column;
+    gap: 6px;
+    text-align: center;
   }
 }
 
@@ -1439,6 +1493,7 @@ tr.selected .radio-circle::after {
   .col-left,
   .col-center,
   .preview-card-header,
+  .rich-format-bar,
   .preview-bottom-bar,
   .app-footer,
   .modal-backdrop,

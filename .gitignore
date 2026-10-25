@@ -1,0 +1,13 @@
+node_modules/
+admin-keygen/
+src/
+server.js
+main.js
+preload.js
+data/
+docs/
+scripts/
+package.json
+*.bat
+*.zip
+temp_publish.ps1
